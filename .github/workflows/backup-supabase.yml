@@ -1,0 +1,62 @@
+name: Backup Supabase to private repo
+
+on:
+  schedule:
+    # ~03:00 America/Santiago. Chile continental ha estado en UTC-3 todo el
+    # año desde 2022 (se suspendió el cambio de horario), por eso 06:00 UTC.
+    # Si Chile vuelve a cambiar de huso, este cron habría que ajustarlo a mano
+    # (GitHub Actions no conoce zonas horarias, solo UTC).
+    - cron: '0 6 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Export tables from Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p backup_out
+          DATE="$(date -u +%Y%m%d)"
+          echo "DATE=$DATE" >> "$GITHUB_ENV"
+          for table in gastos notas eventos log usuarios; do
+            http_code=$(curl -sS -o "backup_out/${table}_${DATE}.json" -w '%{http_code}' \
+              -H "apikey: ${SUPABASE_SERVICE_KEY}" \
+              -H "Authorization: Bearer ${SUPABASE_SERVICE_KEY}" \
+              "${SUPABASE_URL}/rest/v1/${table}?select=*")
+            if [ "$http_code" != "200" ]; then
+              echo "::error::Fallo al exportar ${table} (HTTP ${http_code})"
+              exit 1
+            fi
+            echo "OK ${table}: $(wc -c < "backup_out/${table}_${DATE}.json") bytes"
+          done
+
+      - name: Push backups to private repo
+        env:
+          BACKUP_REPO_TOKEN: ${{ secrets.BACKUP_REPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          git config --global user.name "gastos-backup-bot"
+          git config --global user.email "gastos-backup-bot@users.noreply.github.com"
+
+          git init -q backup_repo
+          cd backup_repo
+          git remote add origin "https://x-access-token:${BACKUP_REPO_TOKEN}@github.com/Joylove96/Gastos-backups.git"
+          git fetch -q origin || true
+          git checkout -B main origin/main 2>/dev/null || git checkout -B main
+
+          mkdir -p backups
+          cp ../backup_out/*.json backups/
+
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Sin cambios, nada que respaldar hoy."
+          else
+            git commit -q -m "Backup ${DATE}"
+            git push -q origin HEAD:main
+          fi
