@@ -31,6 +31,9 @@ jobs:
               "${SUPABASE_URL}/rest/v1/${table}?select=*")
             if [ "$http_code" != "200" ]; then
               echo "::error::Fallo al exportar ${table} (HTTP ${http_code})"
+              echo "Respuesta de Supabase (sin credenciales):"
+              cat "backup_out/${table}_${DATE}.json"
+              echo ""
               exit 1
             fi
             echo "OK ${table}: $(wc -c < "backup_out/${table}_${DATE}.json") bytes"
