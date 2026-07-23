@@ -48,7 +48,12 @@ jobs:
           git config --global user.email "gastos-backup-bot@users.noreply.github.com"
           git config --global credential.helper store
 
-          echo "https://x-access-token:${BACKUP_REPO_TOKEN}@github.com" | git credential approve
+          cat <<EOF | git credential approve
+protocol=https
+host=github.com
+username=x-access-token
+password=${BACKUP_REPO_TOKEN}
+EOF
 
           git init -q backup_repo
           cd backup_repo
