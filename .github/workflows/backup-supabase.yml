@@ -46,10 +46,13 @@ jobs:
           set -euo pipefail
           git config --global user.name "gastos-backup-bot"
           git config --global user.email "gastos-backup-bot@users.noreply.github.com"
+          git config --global credential.helper store
+
+          echo "https://x-access-token:${BACKUP_REPO_TOKEN}@github.com" | git credential approve
 
           git init -q backup_repo
           cd backup_repo
-          git remote add origin "https://x-access-token:${BACKUP_REPO_TOKEN}@github.com/Joylove96/Gastos-backups.git"
+          git remote add origin "https://github.com/Joylove96/Gastos-backups.git"
           git fetch -q origin || true
           git checkout -B main origin/main 2>/dev/null || git checkout -B main
 
