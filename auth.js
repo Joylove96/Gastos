@@ -232,9 +232,12 @@ function AuthGate() {
   return React.createElement(App, null);
 }
 
-// Replace root immediately: unmount any existing render and mount AuthGate
-if (document.getElementById("root")._reactRootContainer) {
-  document.getElementById("root")._reactRootContainer.unmount();
-}
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(React.createElement(AuthGate, null));
+// Replace root immediately after page loads
+setTimeout(() => {
+  const rootEl = document.getElementById("root");
+  // Clear everything that might be in the root
+  rootEl.innerHTML = "";
+  // Create a fresh root and render AuthGate
+  const root = ReactDOM.createRoot(rootEl);
+  root.render(React.createElement(AuthGate, null));
+}, 100);
