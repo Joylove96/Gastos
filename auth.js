@@ -144,8 +144,9 @@ function AuthGate() {
   return React.createElement(App, null);
 }
 
-// Replace the root render when this script loads
-setTimeout(() => {
-  const root = ReactDOM.createRoot(document.getElementById("root"));
-  root.render(React.createElement(AuthGate, null));
-}, 0);
+// Replace root immediately: unmount any existing render and mount AuthGate
+if (document.getElementById("root")._reactRootContainer) {
+  document.getElementById("root")._reactRootContainer.unmount();
+}
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(React.createElement(AuthGate, null));
