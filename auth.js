@@ -131,7 +131,7 @@ function LoginScreen({onSuccess}) {
         React.createElement("img", {
           src: "./joylovepets-logo.png",
           alt: "JoyLovePets",
-          style: { width: 400, height: 400 },
+          style: { width: 200, height: 200 },
           onError: (e) => { e.currentTarget.style.display = "none"; }
         }),
         React.createElement("div", { style: { fontSize: 21, fontWeight: 800, marginTop: 10, letterSpacing: "-.5px" } }, "JoyRegist"),
