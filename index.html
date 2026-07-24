@@ -239,17 +239,6 @@ video{width:100%;border-radius:12px;display:block;background:#000}
 <script src="./app.js?v=13"></script>
 <script src="./auth.js?v=5"></script>
 <script>
-// Force logo to be 400px wide after render
-setInterval(function() {
-  var img = document.querySelector('img[src*="joylovepets-logo"]');
-  if (img && img.style.width !== "400px") {
-    img.style.width = "400px";
-    img.style.height = "400px";
-    img.style.display = "block";
-    img.style.margin = "0 auto";
-  }
-}, 100);
-
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function () {
     navigator.serviceWorker.register("./sw.js").catch(function (e) {
@@ -257,6 +246,20 @@ if ("serviceWorker" in navigator) {
     });
   });
 }
+
+// Force logo to be 400px wide - runs after everything loads
+window.addEventListener("load", function() {
+  setTimeout(function() {
+    var img = document.querySelector('img[src*="joylovepets-logo"]');
+    if (img) {
+      img.style.width = "400px !important";
+      img.style.height = "400px !important";
+      img.style.display = "block";
+      img.style.margin = "0 auto";
+      console.log("Logo resized to 400px");
+    }
+  }, 500);
+});
 </script>
 </body>
 </html>
