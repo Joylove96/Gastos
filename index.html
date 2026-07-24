@@ -239,6 +239,20 @@ video{width:100%;border-radius:12px;display:block;background:#000}
 <script src="./app.js?v=13"></script>
 <script src="./auth.js?v=5"></script>
 <script>
+// Force AuthGate render after auth.js loads
+window.addEventListener("load", function() {
+  setTimeout(function() {
+    var rootEl = document.getElementById("root");
+    if (window.AuthGate) {
+      rootEl.innerHTML = "";
+      var root = ReactDOM.createRoot(rootEl);
+      root.render(React.createElement(AuthGate, null));
+      console.log("AuthGate mounted successfully");
+    } else {
+      console.error("AuthGate not defined");
+    }
+  }, 200);
+});
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function () {
     navigator.serviceWorker.register("./sw.js").catch(function (e) {
