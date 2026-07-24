@@ -247,19 +247,34 @@ if ("serviceWorker" in navigator) {
   });
 }
 
-// Force logo to be 400px wide - runs after everything loads
-window.addEventListener("load", function() {
-  setTimeout(function() {
-    var img = document.querySelector('img[src*="joylovepets-logo"]');
-    if (img) {
-      img.style.width = "400px !important";
-      img.style.height = "400px !important";
-      img.style.display = "block";
-      img.style.margin = "0 auto";
-      console.log("Logo resized to 400px");
-    }
-  }, 500);
+// Force logo to be 400px using MutationObserver
+var observer = new MutationObserver(function() {
+  var img = document.querySelector('img[src*="joylovepets-logo"]');
+  if (img && img.style.width !== "400px") {
+    img.style.width = "400px !important";
+    img.style.height = "400px !important";
+    img.style.display = "block";
+    img.style.margin = "0 auto";
+    console.log("Logo resized to 400px via MutationObserver");
+  }
 });
+observer.observe(document.getElementById("root"), { childList: true, subtree: true, attributes: true });
+
+// Also try immediately and on load
+function resizeLogo() {
+  var img = document.querySelector('img[src*="joylovepets-logo"]');
+  if (img) {
+    img.style.width = "400px !important";
+    img.style.height = "400px !important";
+  }
+}
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", resizeLogo);
+}
+window.addEventListener("load", resizeLogo);
+setTimeout(resizeLogo, 100);
+setTimeout(resizeLogo, 500);
+setTimeout(resizeLogo, 1000);
 </script>
 </body>
 </html>
