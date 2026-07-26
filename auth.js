@@ -52,7 +52,7 @@ function ResetPasswordScreen({onSuccess}) {
   return React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", padding: 16 } },
     React.createElement("div", { className: "modal", style: { maxWidth: 400 } },
       React.createElement("div", { style: { textAlign: "center", marginBottom: 22 } },
-        React.createElement("img", { src: "./joylovepets-logo.png", alt: "JoyLovePets", style: { width: 200, height: 200 }, onError: (e) => { e.currentTarget.style.display = "none"; } }),
+        React.createElement("img", { src: "./joylovepets-logo.png", alt: "JoyLovePets", style: { width: 140, height: 140 }, onError: (e) => { e.currentTarget.style.display = "none"; } }),
         React.createElement("div", { style: { fontSize: 21, fontWeight: 800, marginTop: 10, letterSpacing: "-.5px" } }, "Nueva contraseña"),
         React.createElement("div", { style: { fontSize: 12, color: "var(--txt2)" } }, "JoyLovePets SpA")
       ),
@@ -131,7 +131,7 @@ function LoginScreen({onSuccess}) {
         React.createElement("img", {
           src: "./joylovepets-logo.png",
           alt: "JoyLovePets",
-          style: { width: 200, height: 200 },
+          style: { width: 140, height: 140 },
           onError: (e) => { e.currentTarget.style.display = "none"; }
         }),
         React.createElement("div", { style: { fontSize: 21, fontWeight: 800, marginTop: 10, letterSpacing: "-.5px" } }, "JoyRegist"),
