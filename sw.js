@@ -3,7 +3,7 @@
    NUNCA cachea: Supabase, CDN externo, ni APIs.
    Network-first siempre para APIs + CDN. */
 
-const CACHE = "joyregist-v18";
+const CACHE = "joyregist-v19";
 
 const LOCAL_FILES = [
   "./",
