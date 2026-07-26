@@ -1,49 +1,55 @@
--- Backfill de neto/iva para los gastos existentes.
--- Copia y pega en Supabase → SQL Editor → New query. Ejecuta paso a paso (cada bloque por separado)
--- para poder revisar el resultado antes de seguir.
+-- BACKFILL NETO/IVA EN TABLA GASTOS
+-- Corrección: Notaría ($10k, 2026-07-14) y Conservador ($10k, 2026-07-13)
+-- fueron pagadas en EFECTIVO, sin factura → tipo_documento='Sin documento', iva=0
 
--- ============================================================
--- 0) VERIFICACIÓN PREVIA — mira qué vas a tocar antes de tocarlo
--- ============================================================
-select id, fecha, monto_total, tipo_documento, neto, iva, concepto
-from gastos
-where tipo_documento in ('Boleta', 'Sin documento')
-   or tipo_documento is null
-   or tipo_documento = ''
-order by fecha;
+-- VERIFICACIÓN INICIAL
+SELECT id, fecha, concepto, monto_total, tipo_documento, neto, iva
+FROM gastos
+ORDER BY fecha DESC;
 
-select id, fecha, monto_total, tipo_documento, neto, iva, concepto
-from gastos
-where tipo_documento = 'Factura';
+-- BLOQUE 1: Actualizar Notaría y Conservador (efectivo, sin documento)
+UPDATE gastos
+SET tipo_documento = 'Sin documento', neto = monto_total, iva = 0
+WHERE concepto IN ('Mod. de Poder', 'Dominio vigente (Domicilio tributario)');
 
--- ============================================================
--- 1) Boleta / Sin documento → sin crédito fiscal (IVA no recuperable)
--- ============================================================
-update gastos
-set iva = 0,
-    neto = monto_total
-where tipo_documento in ('Boleta', 'Sin documento');
+-- BLOQUE 2: Actualizar resto de gastos por regla tipo_documento
+-- Boleta → iva=0, neto=monto_total
+UPDATE gastos
+SET iva = 0, neto = monto_total
+WHERE tipo_documento = 'Boleta';
 
--- ============================================================
--- 2) Vacío o Factura → separa neto/iva (crédito fiscal recuperable, factura a la SpA)
---    neto = monto/1.19 redondeado, iva = monto - neto
--- ============================================================
-update gastos
-set neto = round(monto_total / 1.19),
-    iva = monto_total - round(monto_total / 1.19)
-where tipo_documento = 'Factura'
-   or tipo_documento is null
-   or tipo_documento = '';
+-- Sin documento (excepto los 2 que ya actualizamos) → iva=0, neto=monto_total
+UPDATE gastos
+SET iva = 0, neto = monto_total
+WHERE tipo_documento = 'Sin documento' AND neto IS NULL;
 
--- ============================================================
--- 3) VERIFICACIÓN FINAL
--- ============================================================
-select fecha, monto_total, tipo_documento, neto, iva,
-       neto + iva as suma,
-       (neto + iva = monto_total) as cuadra
-from gastos
-order by fecha;
+-- Factura (o vacío que no sea Notaría/Conservador) → neto = round(monto/1.19), iva = monto - neto
+UPDATE gastos
+SET neto = ROUND(monto_total / 1.19::numeric, 0),
+    iva = monto_total - ROUND(monto_total / 1.19::numeric, 0)
+WHERE (tipo_documento = 'Factura' OR tipo_documento IS NULL OR tipo_documento = '')
+  AND neto IS NULL;
 
-select sum(iva) as iva_recuperable_total
-from gastos
-where tipo_documento not in ('Boleta', 'Sin documento');
+-- BLOQUE 3: Verificación final
+-- Validar que neto + iva = monto_total para cada fila
+SELECT
+  id, fecha, concepto, monto_total, tipo_documento, neto, iva,
+  (neto + iva) AS suma_verificacion,
+  CASE
+    WHEN (neto + iva) = monto_total THEN '✓ OK'
+    ELSE '✗ ERROR: suma no coincide'
+  END AS estado
+FROM gastos
+ORDER BY fecha DESC;
+
+-- RESUMEN FINAL
+SELECT
+  tipo_documento,
+  COUNT(*) as cantidad,
+  SUM(monto_total) as total_monto,
+  SUM(neto) as total_neto,
+  SUM(iva) as total_iva,
+  SUM(iva) as iva_recuperable
+FROM gastos
+GROUP BY tipo_documento
+ORDER BY tipo_documento;
