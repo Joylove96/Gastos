@@ -92,20 +92,12 @@ function LoginScreen({onSuccess}) {
     setLoading(true);
     try {
       const sb = await initSB();
-      const { data: { user }, error: err } = await sb.auth.signInWithPassword({
+      const { error: err } = await sb.auth.signInWithPassword({
         email,
         password
       });
 
       if (err) throw err;
-
-      // Validate email
-      if (user.email !== "joylovemypets@gmail.com") {
-        await sb.auth.signOut();
-        setError("Solo joylovemypets@gmail.com puede acceder");
-        setLoading(false);
-        return;
-      }
 
       onSuccess();
     } catch (err) {
@@ -148,7 +140,7 @@ function LoginScreen({onSuccess}) {
             autoFocus: true,
             value: email,
             onChange: (e) => setEmail(e.target.value.trim()),
-            placeholder: "joylovemypets@gmail.com"
+            placeholder: "tu@correo.com"
           })
         ),
         React.createElement("div", { className: "fld", style: { marginBottom: 0 } },
