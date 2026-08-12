@@ -1,9 +1,9 @@
-/* Service worker · Gastos JoyLovePets SpA v16
+/* Service worker · Gastos JoyLovePets SpA v17
    SOLO cachea archivos locales (HTML, JS, CSS, imágenes, fuentes).
    NUNCA cachea: Supabase, CDN externo, ni APIs.
    Network-first siempre para APIs + CDN. */
 
-const CACHE = "joyregist-v26";
+const CACHE = "joyregist-v27";
 
 const LOCAL_FILES = [
   "./",
