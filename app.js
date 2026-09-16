@@ -273,7 +273,8 @@ function Inventario({productos:lista,onNuevo,onEditar}){
       ordenados.map(p=>React.createElement("button",{key:p.id,className:"tx",onClick:()=>onEditar(p.id)},
         React.createElement("div",{className:"tx-b"},
           React.createElement("div",{className:"tx-n"},p.nombre,p.talla?` \xB7 ${p.talla}`:"",p.activo===!1?" (inactivo)":""),
-          React.createElement("div",{className:"tx-d"},p.marca,p.categoria?` \xB7 ${p.categoria}`:""," \xB7 costo ",clp(p.costo_unitario),p.fecha_compra?` \xB7 ${p.fecha_compra_aprox?mesLbl(p.fecha_compra.slice(0,7)):fFecha(p.fecha_compra)}`:"")
+          React.createElement("div",{className:"tx-d"},p.marca,p.categoria?` \xB7 ${p.categoria}`:""," \xB7 costo ",clp(p.costo_unitario),p.fecha_compra?` \xB7 ${p.fecha_compra_aprox?mesLbl(p.fecha_compra.slice(0,7)):fFecha(p.fecha_compra)}`:""),
+          p.proveedor_compra&&React.createElement("div",{style:{fontSize:11,color:"var(--txt2)",marginTop:2}},"\u{1F4E6} ",p.proveedor_compra)
         ),
         React.createElement("div",{className:"tx-r"},
           React.createElement("div",{className:"tx-a"},p.stock_actual," u."),
